@@ -8,12 +8,15 @@ var gameState = 0;
 var pista;
 var carro1;
 var carro2;
- var carro1img,carro2img;
+var carros = [];
+var allPlayers;
+var carro1img,carro2img;
+
 function preload() {
   backgroundImage = loadImage("./assets/planodefundo.png");
-  pista = loadImage("./assets/planodefundo.png");
+  pista = loadImage("./assets/track.jpg");
   carro1img = loadImage("./assets/car1.png");
-  carro2img = loadImage ("/assets/car2.png");
+  carro2img = loadImage ("./assets/car2.png");
 }
 
 function setup() {
@@ -30,9 +33,9 @@ function draw() {
   if(playerCount === 2){
     game.update(1);
   }
- /* if(gameState === 1){
+  if(gameState === 1){
     game.play();
-  }*/
+  }
 }
 
 function windowResized() {
