@@ -7,7 +7,9 @@ class Player {
     this.rank = 0;
     this.score = 0;
     this.fuel = 185;
+    this.life = 185;
   }
+
 
   getDistance(){
     var playerDistanceRef = database.ref("players/player"+ this.index);
@@ -48,14 +50,14 @@ class Player {
     });
   }
 
-  static getPlayersInfo(){
+  static getPlayersInfo(){ 
     var playerInfoRef = database.ref("players");
     playerInfoRef.on("value", data => {
       allPlayers = data.val();
     })
   }
 
-  update(){
+  update(){ //atualização do banco de dados
     var playerIndex = "players/player" + this.index;
     database.ref(playerIndex).update({
       positionX: this.positionX,
@@ -64,5 +66,19 @@ class Player {
       score: this.score,
     });
   }
+
+  getCarsAtEnd(){ //ler carsAtEnd do banco de dados
+    database.ref("carsAtEnd").on("value",data =>{
+      this.rank = data.val();
+    });
+  }
+
+  static updateCarsAtEnd(rank){ //atualizar o carsAtEnd do banco de dados
+    database.ref("/").update({
+      carsAtEnd: rank,
+    });
+  }
+
+
 
 }

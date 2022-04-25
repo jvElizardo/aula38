@@ -69,9 +69,12 @@ class Game {
     this.handleElements();
     this.handleResetButton();
     Player.getPlayersInfo();
+    player.getCarsAtEnd();
 
     if(allPlayers !== undefined){
       image(pista,0,-height*5,width,height*6);
+
+      this.showLife();
 
       this.showLeaderboard();
 
@@ -101,6 +104,15 @@ class Game {
 
       this.handlePlayerControls(); //chamada da função de movimentação do player
 
+      //verificar se passou pela linha de chegada
+      const finishLine = height*6 -100;
+      if(player.positionY > finishLine){
+        gameState = 2;
+        player.rank +=1;
+        Player.updateCarsAtEnd(player.rank);
+        player.update();
+        this.showRank();
+      }
       drawSprites();
     }
   }
@@ -170,7 +182,8 @@ class Game {
       database.ref("/").set({
         playerCount:0,
         gameState:0,
-        players:{}
+        players:{},
+        carsAtEnd:0,
       });
       window.location.reload();
     });
@@ -212,6 +225,29 @@ class Game {
     collected.remove();
     });
 
+  }
+
+  //função da barra de vida
+  showLife(){
+    push();
+    image(lifeImage, width/2-130, height- player.positionY - 400, 20,20);
+    fill("white");
+    rect(width/2-100, height- player.positionY - 400, 185,20);
+    fill("#f50057");
+    rect(width/2-100, height- player.positionY - 400, player.life,20);
+    noStroke();
+    pop();
+  }
+  //função que mostra a tela para quem passou pela linha de chegada
+  showRank(){
+    swal({
+      title: `Incrível! ${"\n"} Rank ${"\n"} ${player.rank}`,
+      text: "Você alcançou a linha de chegada com sucesso!",
+      imageURL: 
+      "https://raw.githubusercontent.com/vishalgaddam873/p5-multiplayer-car-race-game/master/assets/cup.png",
+      imageSize: "100x100",
+      confirmButtonText: "Ok",
+    });
   }
 
 
