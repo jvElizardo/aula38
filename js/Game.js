@@ -93,6 +93,7 @@ class Game {
 
           //coletar combustível
           this.handleFuel(index);
+          this.handleCoins(index);
           //camera do jogo
           camera.position.y = carros[index-1].position.y;
         }
@@ -135,6 +136,14 @@ class Game {
      player.positionY +=10;
      player.update(); //erro nesta função
    }
+   if(keyIsDown(LEFT_ARROW)){
+     player.positionX -=8;
+     player.update();
+   }
+   if(keyIsDown(RIGHT_ARROW)){
+    player.positionX +=8;
+    player.update();
+  }
  }
 
  showLeaderboard()
@@ -194,6 +203,15 @@ class Game {
       player.fuel = 185;
       collected.remove();
     });
+    
+  }
+  handleCoins(index){
+    carros[index-1].overlap(powerCoins, function (collector,collected){
+      player.score +=10;
+      player.update();
+    collected.remove();
+    });
+
   }
 
 
