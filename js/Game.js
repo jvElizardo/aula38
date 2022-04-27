@@ -6,7 +6,7 @@ class Game {
     this.leaderboardTitle = createElement("h2");
     this.leader1 = createElement("h2");
     this.leader2 = createElement("h2");
-
+    this.playerMoving = false;
   }
 
   start() {
@@ -102,6 +102,11 @@ class Game {
         }
       }
 
+      if(this.playerMoving){
+        player.positionY +=5;
+        player.update();
+      }
+
       this.handlePlayerControls(); //chamada da função de movimentação do player
 
       //verificar se passou pela linha de chegada
@@ -145,6 +150,7 @@ class Game {
 
  handlePlayerControls(){
    if(keyIsDown(UP_ARROW)){
+     this.playerMoving = true;
      player.positionY +=10;
      player.update(); //erro nesta função
    }
@@ -216,8 +222,22 @@ class Game {
       player.fuel = 185;
       collected.remove();
     });
+
+    if(player.fuel>0 && this.playerMoving){
+      player.fuel -= 1.1;
+    }
+
+    if(player.fuel <=0){
+      gameState = 2;
+      this.gameOver();
+    }
     
   }
+
+  //colisão com obstaculos
+  handleObstacleCollision({})index
+
+  //pegar moedas
   handleCoins(index){
     carros[index-1].overlap(powerCoins, function (collector,collected){
       player.score +=10;
@@ -257,6 +277,17 @@ class Game {
       "https://raw.githubusercontent.com/vishalgaddam873/p5-multiplayer-car-race-game/master/assets/cup.png",
       imageSize: "100x100",
       confirmButtonText: "Ok",
+    });
+  }
+
+  gameOver(){
+    swal({
+      title: `Game Over`,
+      text: "Você perdeu a corrida",
+      imageURL: 
+      "assets/obstacle1.png",
+      imageSize: "100x100",
+      confirmButtonText: "Obrigada por jogar",
     });
   }
 
