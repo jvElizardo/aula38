@@ -75,7 +75,7 @@ class Game {
       image(pista,0,-height*5,width,height*6);
 
       this.showLife();
-
+      this.showFuel();
       this.showLeaderboard();
 
       var index = 0;
@@ -235,6 +235,16 @@ class Game {
     rect(width/2-100, height- player.positionY - 400, 185,20);
     fill("#f50057");
     rect(width/2-100, height- player.positionY - 400, player.life,20);
+    noStroke();
+    pop();
+  }
+  showFuel(){
+    push();
+    image( fuelsImage,width/2-130,height- player.positionY - 350, 20,20);
+    fill("white");
+    rect(width/2-100,height- player.positionY - 350, 185,20 );
+    fill("black");
+    rect(width/2-100, height- player.positionY - 350, player.fuel,20);
     noStroke();
     pop();
   }
