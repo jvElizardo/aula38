@@ -12,8 +12,7 @@ var carros = [];
 var allPlayers;
 var carro1img,carro2img;
 var fuels, powerCoins, obstacles; //grupos
-var fuelsImage, powerCoinsImage, obstacle1Image, obstacle2Image;
-var lifeImage;
+var fuelsImage, lifeImage, powerCoinsImage, obstacle1Image, obstacle2Image; //imagens
 
 function preload() {
   backgroundImage = loadImage("assets/planodefundo.png");

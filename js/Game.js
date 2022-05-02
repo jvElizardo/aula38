@@ -1,20 +1,27 @@
 class Game {
+  //propriedades do objeto game
   constructor() {
     this.resetTitle = createElement("h2");
     this.resetButton = createButton("");
-    //erro era o símbolo de igual (estava um traço)
     this.leaderboardTitle = createElement("h2");
     this.leader1 = createElement("h2");
     this.leader2 = createElement("h2");
-    this.playerMoving = false;
+    this.playerMoving = false; //sinalizador de movimento do carro
+    this.leftKeyActive = false; //sinalizador do movimento para a esquerda
   }
 
+  //tela inicial do jogo
   start() {
+    //objeto jogador
     player = new Player();
+    //leitura do número de jogadores do BD
     playerCount = player.getCount();
+    //objeto formulário
     form = new Form();
+    //mostrar o formulário
     form.display();
 
+    //criação dos sprites e animação dos carros
     carro1 = createSprite(width/2 - 50, height - 100);
     carro1.addImage("car1", carro1img);
     carro1.scale = 0.07;
@@ -22,12 +29,15 @@ class Game {
     carro2.addImage("car2", carro2img);
     carro2.scale = 0.07;
 
+    //matriz dos carros
     carros = [carro1,carro2];
 
+    //criação dos grupos de combustíveis, moedas e obstáculos  
     fuels = new Group();
     powerCoins = new Group();
     obstacles = new Group();
 
+    //matriz das informações dos obstáculos (posição e imagem)
     var obstaclesPositions = [
       { x: width / 2 + 250, y: height - 800, image: obstacle2Image },
       { x: width / 2 - 150, y: height - 1300, image: obstacle1Image },
@@ -52,6 +62,7 @@ class Game {
 
   }
 
+  //ler o estado do jogo do BD
   getState(){
     var gameStateRef = database.ref("gameState");
     gameStateRef.on("value", function(data){
@@ -59,6 +70,7 @@ class Game {
     });
   }
 
+  //atualização o estado do jogo no BD
   update(state){
     database.ref("/").update({
     gameState:state
@@ -66,21 +78,24 @@ class Game {
   }
 
   play(){
+    //chamada da função para mostrar o título, botão de reset e placar do jogo
     this.handleElements();
     this.handleResetButton();
+
     Player.getPlayersInfo();
     player.getCarsAtEnd();
 
     if(allPlayers !== undefined){
       image(pista,0,-height*5,width,height*6);
 
+      //chamada das funções para mostrar as informações do jogador, vida e combustível
       this.showLife();
       this.showFuel();
       this.showLeaderboard();
 
       var index = 0;
       //for(var i=0; i< carros.length; i++) {}
-      for(var plr in allPlayers){
+      for(var plr in allPlayers){ //loop for in
         index = index + 1; //i começa em 0
         var x = allPlayers[plr].positionX;
         var y = height - allPlayers[plr].positionY;
@@ -88,24 +103,29 @@ class Game {
         carros[index-1].position.x = x;
         carros[index-1].position.y = y;
 
-        //marcação do carro
+        //marcação do carro na tela do jogador
         if(index === player.index){
           stroke(10);
           fill("red");
           ellipse(x,y,60,60);
-
-          //coletar combustível
+          //coletar combustível e moedas
           this.handleFuel(index);
           this.handleCoins(index);
+          //detectar colisão com obstáculos
+          this.handleObstaclesCollision(index);
+          //detectar colisão com carros
+          this.handleCarsCollision(index);
+
           //camera do jogo
           camera.position.y = carros[index-1].position.y;
         }
       }
 
-      if(this.playerMoving){
+      //IA que movimenta o carro  
+     /* if(this.playerMoving){
         player.positionY +=5;
         player.update();
-      }
+      } */
 
       this.handlePlayerControls(); //chamada da função de movimentação do player
 
@@ -118,12 +138,19 @@ class Game {
         player.update();
         this.showRank();
       }
+
+      //desenhar os sprites
       drawSprites();
     }
   }
 
- handleElements(){
-   form.hide();
+  //mostrar o título, botão de reset e placar do jogo
+  handleElements(){
+   
+  //esconder o formulário
+  form.hide();
+
+   //título do jogo
    form.titleImg.position(40,50);
    form.titleImg.class("gameTitleAfterEffect");
 
@@ -148,6 +175,7 @@ class Game {
 
  }
 
+  //mover o player
  handlePlayerControls(){
    if(keyIsDown(UP_ARROW)){
      this.playerMoving = true;
@@ -157,13 +185,16 @@ class Game {
    if(keyIsDown(LEFT_ARROW)){
      player.positionX -=8;
      player.update();
+     this.leftKeyActive = true;
    }
    if(keyIsDown(RIGHT_ARROW)){
     player.positionX +=8;
     player.update();
+    this.leftKeyActive = false;
   }
  }
 
+  //mostrar o painel de informações dos jogadores  
  showLeaderboard()
  {
    var leader1, leader2;
@@ -182,7 +213,7 @@ class Game {
    this.leader2.html(leader2);
  }
  
-
+  //criar o botão de reset 
   handleResetButton(){
     this.resetButton.mousePressed(()=>{
       database.ref("/").set({
@@ -194,12 +225,11 @@ class Game {
       window.location.reload();
     });
   }
-  //função para criar as moedas, combustíveis e obstáculos
+  //criar as moedas, combustíveis e obstáculos
   addSprites(spriteGroup,spriteNumber,spriteImage,scale, positions=[])
   { 
     for(var i=0; i<spriteNumber; i++){
       var x,y;
-
       if(positions.length > 0){
         x = positions[i].x;
         y = positions[i].y;
@@ -207,12 +237,10 @@ class Game {
         x = random(width/2+150, width/2-150); 
         y = random(-height*4.5, height-400); 
       }
-
       var sprite = createSprite(x,y);
       sprite.addImage("sprite", spriteImage);
       sprite.scale = scale;
       spriteGroup.add(sprite);
-
     }
   }
 
@@ -222,20 +250,14 @@ class Game {
       player.fuel = 185;
       collected.remove();
     });
-
     if(player.fuel>0 && this.playerMoving){
       player.fuel -= 1.1;
     }
-
     if(player.fuel <=0){
       gameState = 2;
       this.gameOver();
     }
-    
   }
-
-  //colisão com obstaculos
-  handleObstacleCollision({})index
 
   //pegar moedas
   handleCoins(index){
@@ -247,7 +269,80 @@ class Game {
 
   }
 
-  //função da barra de vida
+  //colisão com os obstáculos
+  handleObstaclesCollision(index){
+    if(carros[index-1].collide(obstacles)){
+      //verifica o lado onde ocorreu a colisão
+      if(this.leftKeyActive){
+        player.positionX += 100;
+      }
+      else{
+        player.positionX -= 100;
+      }
+      //verifica se tem vida
+      if(player.life > 0){
+        player.life -= 20;
+      }
+      //atualiza o BD
+      player.update();
+      //fim de jogo
+      if(player.life <=0){
+        gameState = 2;
+        this.gameOver();
+      }
+    }
+  }
+
+  //colisão com carros
+  handleCarsCollision(index){
+    //        player1, player2, player3....
+    //matriz  indice 0
+  //CARRO 1 BATE NO CARRO 2  
+  if(index === 1){ 
+    if(carros[index-1].collide(carros[1])){
+      // matriz 0, player1    matriz 1, player2  
+      if(this.leftKeyActive){
+        player.positionX += 100;
+      }
+      else{
+        player.positionX -= 100;
+      }
+      //verifica se tem vida
+      if(player.life > 0){
+        player.life -= 20;
+      }
+      //atualiza o BD
+      player.update();
+
+      //fim de jogo
+      if(player.life <=0){
+        gameState = 2;
+        this.gameOver();
+      }
+    }
+  }
+  
+  //CARRO 2 BATE NO CARRO 1 
+  if(index === 2){ 
+    if(carros[index-1].collide(carros[0])){
+      // matriz 1, player2    matriz 0, player1  
+      if(this.leftKeyActive){
+        player.positionX += 100;
+      }
+      else{
+        player.positionX -= 100;
+      }
+      //verifica se tem vida
+      if(player.life > 0){
+        player.life -= 20;
+      }
+      //atualiza o BD
+      player.update();
+    }
+  }
+  }
+
+  //barra de vida
   showLife(){
     push();
     image(lifeImage, width/2-130, height- player.positionY - 400, 20,20);
@@ -258,6 +353,8 @@ class Game {
     noStroke();
     pop();
   }
+
+  //barra de combustível
   showFuel(){
     push();
     image( fuelsImage,width/2-130,height- player.positionY - 350, 20,20);
@@ -268,24 +365,25 @@ class Game {
     noStroke();
     pop();
   }
-  //função que mostra a tela para quem passou pela linha de chegada
+  //sweet alert para quem passou pela linha de chegada
   showRank(){
     swal({
       title: `Incrível! ${"\n"} Rank ${"\n"} ${player.rank}`,
       text: "Você alcançou a linha de chegada com sucesso!",
       imageURL: 
-      "https://raw.githubusercontent.com/vishalgaddam873/p5-multiplayer-car-race-game/master/assets/cup.png",
+        "https://raw.githubusercontent.com/vishalgaddam873/p5-multiplayer-car-race-game/master/assets/cup.png",
       imageSize: "100x100",
       confirmButtonText: "Ok",
     });
   }
-
+  
+  //sweet alert quando acaba o combustível
   gameOver(){
     swal({
       title: `Game Over`,
       text: "Você perdeu a corrida",
       imageURL: 
-      "assets/obstacle1.png",
+        "https://cdn.shopify.com/s/files/1/1061/1924/products/Thumbs_Down_Sign_Emoji_Icon_ios10_grande.png",
       imageSize: "100x100",
       confirmButtonText: "Obrigada por jogar",
     });

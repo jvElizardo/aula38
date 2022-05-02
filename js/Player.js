@@ -1,4 +1,5 @@
 class Player {
+  //propriedades do objeto player
   constructor() {
     this.name = null;
     this.index = null;
@@ -10,7 +11,7 @@ class Player {
     this.life = 185;
   }
 
-
+  //leitura da distância do BD
   getDistance(){
     var playerDistanceRef = database.ref("players/player"+ this.index);
     playerDistanceRef.on("value", data =>{
@@ -20,6 +21,7 @@ class Player {
     })
   }
 
+  //adição dos players ao BD
   addPlayer(){
     var playerIndex = "players/player" + this.index;
     if(this.index === 1){
@@ -37,6 +39,7 @@ class Player {
     });
   }
 
+  //leitura do número de players do BD
   getCount(){
     var playerCountRef = database.ref("playerCount");
     playerCountRef.on("value", data =>{
@@ -44,6 +47,7 @@ class Player {
     });
   }
 
+  //atualização da contagem dos players no BD
   updateCount(count){
     database.ref("/").update({
       playerCount: count
@@ -57,23 +61,27 @@ class Player {
     })
   }
 
-  update(){ //atualização do banco de dados
+  //atualização do banco de dados
+  update(){ 
     var playerIndex = "players/player" + this.index;
     database.ref(playerIndex).update({
       positionX: this.positionX,
       positionY: this.positionY,
       rank: this.rank,
       score: this.score,
+      life: this.life
     });
   }
 
-  getCarsAtEnd(){ //ler carsAtEnd do banco de dados
+  //ler carsAtEnd do banco de dados
+  getCarsAtEnd(){ 
     database.ref("carsAtEnd").on("value",data =>{
       this.rank = data.val();
     });
   }
 
-  static updateCarsAtEnd(rank){ //atualizar o carsAtEnd do banco de dados
+  //atualizar o carsAtEnd do banco de dados
+  static updateCarsAtEnd(rank){ 
     database.ref("/").update({
       carsAtEnd: rank,
     });

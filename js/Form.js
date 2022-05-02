@@ -1,4 +1,5 @@
 class Form {
+  //propriedades do objeto form
   constructor() {
     this.input = createInput("").attribute("placeholder", "Digite seu nome");
     this.playButton = createButton("Jogar");
