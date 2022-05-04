@@ -8,6 +8,7 @@ class Game {
     this.leader2 = createElement("h2");
     this.playerMoving = false; //sinalizador de movimento do carro
     this.leftKeyActive = false; //sinalizador do movimento para a esquerda
+    this.blast = false;
   }
 
   //tela inicial do jogo
@@ -100,9 +101,12 @@ class Game {
         index = index + 1; //i começa em 0
         var x = allPlayers[plr].positionX;
         var y = height - allPlayers[plr].positionY;
+        
         var vida_atual=allPlayers[plr].life;
+        
         if (vida_atual<=0){
-          carros[index-1].changeImage("bateu");
+          carros[index-1].changeImage("bater");
+          carros[index-1].scale = 0.3;
         }
         carros[index-1].position.x = x;
         carros[index-1].position.y = y;
@@ -119,6 +123,12 @@ class Game {
           this.handleObstaclesCollision(index);
           //detectar colisão com carros
           this.handleCarsCollision(index);
+
+          if(player.life <=0)
+          {
+            this.blast = true;
+            this.playerMoving = false;
+          }
 
           //camera do jogo
           camera.position.y = carros[index-1].position.y;
@@ -181,20 +191,22 @@ class Game {
 
   //mover o player
  handlePlayerControls(){
-   if(keyIsDown(UP_ARROW)){
-     this.playerMoving = true;
-     player.positionY +=10;
-     player.update(); //erro nesta função
-   }
-   if(keyIsDown(LEFT_ARROW)){
+   if(!this.blast){
+    if(keyIsDown(UP_ARROW)){
+      this.playerMoving = true;
+      player.positionY +=10;
+      player.update(); //erro nesta função
+     }
+    if(keyIsDown(LEFT_ARROW)){
      player.positionX -=8;
      player.update();
      this.leftKeyActive = true;
-   }
-   if(keyIsDown(RIGHT_ARROW)){
-    player.positionX +=8;
-    player.update();
-    this.leftKeyActive = false;
+    }
+    if(keyIsDown(RIGHT_ARROW)){
+      player.positionX +=8;
+      player.update();
+      this.leftKeyActive = false;
+    }
   }
  }
 
@@ -290,10 +302,10 @@ class Game {
       //atualiza o BD
       player.update();
       //fim de jogo
-      if(player.life <=0){
-        gameState = 2;
-        this.gameOver();
-      }
+      //if(player.life <=0){
+      //  gameState = 2;
+     //   this.gameOver();
+     // }
     }
   }
 
@@ -319,10 +331,10 @@ class Game {
       player.update();
 
       //fim de jogo
-      if(player.life <=0){
-        gameState = 2;
-        this.gameOver();
-      }
+     // if(player.life <=0){
+     //   gameState = 2;
+        //this.gameOver();
+     // }
     }
   }
   
