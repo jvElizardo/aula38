@@ -25,10 +25,11 @@ class Game {
     carro1 = createSprite(width/2 - 50, height - 100);
     carro1.addImage("car1", carro1img);
     carro1.scale = 0.07;
+    carro1.addImage("bater",crashImage);
     carro2 = createSprite(width/2 + 100, height - 100);
     carro2.addImage("car2", carro2img);
     carro2.scale = 0.07;
-
+    carro2.addImage("bater",crashImage);
     //matriz dos carros
     carros = [carro1,carro2];
 
@@ -99,7 +100,10 @@ class Game {
         index = index + 1; //i começa em 0
         var x = allPlayers[plr].positionX;
         var y = height - allPlayers[plr].positionY;
-
+        var vida_atual=allPlayers[plr].life;
+        if (vida_atual<=0){
+          carros[index-1].changeImage("bateu");
+        }
         carros[index-1].position.x = x;
         carros[index-1].position.y = y;
 
